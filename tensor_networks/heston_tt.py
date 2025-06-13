@@ -119,8 +119,8 @@ def main(
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--tt_tolerance', type=float, default=1e-4)
-    parser.add_argument('--tt_rmax', type=int, default=50)
-    parser.add_argument('--tt_max_iter', type=int, default=50)
+    parser.add_argument('--tt_rmax', type=int, default=100)
+    parser.add_argument('--tt_max_iter', type=int, default=40)
 
     args = parser.parse_args()
     main(tt_tolerance=args.tt_tolerance, tt_rmax=args.tt_rmax, tt_max_iter=args.tt_max_iter)
