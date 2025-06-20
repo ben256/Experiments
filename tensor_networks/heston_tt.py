@@ -31,10 +31,12 @@ def build_heston_tt(
         'T': [T_min, T_max],
     }
 
+    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+
     # Domain Setup
     N = len(variable_params)
     domain = [torch.arange(0, base) for _ in range(N * basis_size)]
-    coefficients = torch.tensor([base ** i for i in range(basis_size)], dtype=torch.float32)
+    coefficients = torch.tensor([base ** i for i in range(basis_size)], dtype=torch.float32, device=device)
     param_deltas = [(v[1] - v[0]) / (torch.sum(coefficients) * (base - 1)) for v in variable_params.values()]
 
     def heston_wrapper(*args):
@@ -55,11 +57,12 @@ def build_heston_tt(
         prices_np = heston_pricer_fft(
             S_np, K_np, T_np, sigma_v, kappa, rho, theta, v0, rate, div
         )
-        return torch.from_numpy(prices_np)
+        return torch.from_numpy(prices_np).to(device)
 
     tt_heston, tt_cross_info = tn.cross(
         function=heston_wrapper,
         domain=domain,
+        device=device,
         eps=tt_tolerance,
         rmax=tt_rmax,
         max_iter=tt_max_iter,
