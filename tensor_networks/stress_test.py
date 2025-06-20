@@ -41,7 +41,7 @@ def perform_stress_test_on_parameter(
     parameter_values = np.linspace(parameter_limits[0], parameter_limits[1], n_samples)
     test_cases[parameter_name] = np.linspace(parameter_limits[0], parameter_limits[1], n_samples)
 
-    ranks = [2, 6, 10, 14, 18, 22, 26, 30]
+    ranks = [2, 3, 4, 5, 6, 7, 8, 9, 10]
 
     errors = np.zeros((n_samples, len(ranks)))
     cpu_times = np.zeros((n_samples, len(ranks)))
