@@ -81,6 +81,7 @@ def perform_stress_test_on_parameter(
     # rms error vs ranks
     axs[0].boxplot(data_for_boxplot, tick_labels=ranks, showfliers=True)
     axs[0].set_ylabel('RMS Pricing Error')
+    axs[0].set_xlabel('Max TT Rank')
     axs[0].set_title(f'RMS Error vs TT Rank ($\\{parameter_name}$ {parameter_limits[0]} to {parameter_limits[1]})')
     axs[0].set_yscale('log')
     axs[0].grid(True, which='both', alpha=0.3)
