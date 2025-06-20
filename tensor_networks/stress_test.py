@@ -1,4 +1,6 @@
 import argparse
+import time
+
 import numpy as np
 from matplotlib import pyplot as plt
 from tqdm import tqdm
@@ -10,7 +12,7 @@ from utils.heston_fft import heston_pricer_fft
 def perform_stress_test_on_parameter(
         parameter_name: str,
         parameter_limits: tuple,
-        error_tolerance: float = 0.05,
+        error_tolerance: float = 1e-3,
         n_samples: int = 10,
         S: float = 100.0,
         K: float = 100.0,
@@ -39,15 +41,17 @@ def perform_stress_test_on_parameter(
     parameter_values = np.linspace(parameter_limits[0], parameter_limits[1], n_samples)
     test_cases[parameter_name] = np.linspace(parameter_limits[0], parameter_limits[1], n_samples)
 
-    ranks = [2, 3, 4, 5, 6, 8, 12, 24, 48]
+    ranks = [2, 6, 10, 14, 18, 22, 26, 30]
 
     errors = np.zeros((n_samples, len(ranks)))
+    cpu_times = np.zeros((n_samples, len(ranks)))
 
     for i in tqdm(range(n_samples)):
         params = {key: test_cases[key][i] for key in test_cases}
         analytic_prices = heston_pricer_fft(**params)
 
         for j, r in enumerate(ranks):
+            start_time = time.time()
             tt_heston, info = build_heston_tt(
                 base=10,
                 basis_size=3,
@@ -58,6 +62,8 @@ def perform_stress_test_on_parameter(
             )
             tt_prices = price_from_tt(params['K'], params['T'], tt_heston, info)
             errors[i, j] = np.sqrt(np.mean((tt_prices - analytic_prices) ** 2))
+            end_time = time.time()
+            cpu_times[i, j] = end_time - start_time
 
     data_for_boxplot = [errors[:, j] for j in range(len(ranks))]
 
@@ -93,7 +99,7 @@ def perform_stress_test_on_parameter(
         bins = np.arange(min(ranks) - 0.5, max(ranks) + 1.5, 1)
         axs[2].hist(valid_ranks, bins=bins, rwidth=0.8, align='mid')
         axs[2].set_xticks(ranks)
-    axs[2].set_title('Distribution of Minimum Rank for RMS < 1e-3')
+    axs[2].set_title(f'Distribution of Minimum Rank for RMS < {tolerance}')
     axs[2].set_xlabel('Minimum TT Rank ($r^*$)')
     axs[2].set_ylabel('Frequency')
     axs[2].grid(True, alpha=0.3)
@@ -105,13 +111,45 @@ def perform_stress_test_on_parameter(
 
     plt.show()
 
+    mean_errors = np.mean(errors, axis=0)
+    mean_cpu_times = np.mean(cpu_times, axis=0)
+
+    fig2, ax1 = plt.subplots(figsize=(12, 7))
+    fig2.suptitle(f'Performance Profile ($\\{parameter_name}$ {parameter_limits[0]} to {parameter_limits[1]})', fontsize=16)
+
+    color = 'tab:red'
+    ax1.set_xlabel('Mean CPU Time (s)', fontsize=12)
+    ax1.set_ylabel('Mean RMS Error', color=color, fontsize=12)
+    ax1.loglog(mean_cpu_times, mean_errors, 'o-', color=color, label='RMS Error')
+    ax1.tick_params(axis='y', labelcolor=color)
+    ax1.grid(True, which='both', linestyle='--', linewidth=0.5)
+
+    ax2 = ax1.twinx()
+    color = 'tab:blue'
+    ax2.set_ylabel('Max TT Rank', color=color, fontsize=12)
+    ax2.semilogx(mean_cpu_times, ranks, 's--', color=color, label='Max TT Rank', alpha=0.7)
+    ax2.tick_params(axis='y', labelcolor=color)
+
+    lines, labels = ax1.get_legend_handles_labels()
+    lines2, labels2 = ax2.get_legend_handles_labels()
+    ax2.legend(lines + lines2, labels + labels2, loc='best')
+
+    fig2.tight_layout(rect=[0, 0.03, 1, 0.95])
+
+    try:
+        plt.savefig(f'./output/plots/stress_test_{parameter_name}_performance.png', dpi=300)
+    except Exception as e:
+        print(f"Could not save the performance plot: {e}. Ensure the output directory exists.")
+
+    plt.show()
+
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument("parameter_name", type=str)
     parser.add_argument("parameter_limits", type=float, nargs=2)
-    parser.add_argument("--error_tolerance", type=float, default=0.05)
-    parser.add_argument("--n_samples", type=int, default=2)
+    parser.add_argument("--error_tolerance", type=float, default=1e-3)
+    parser.add_argument("--n_samples", type=int, default=10)
     parser.add_argument("--S", type=float, default=100.0)
     parser.add_argument("--K", type=float, default=100.0)
     parser.add_argument("--T", type=float, default=1.0)

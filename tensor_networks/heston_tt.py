@@ -66,7 +66,7 @@ def build_heston_tt(
         eps=tt_tolerance,
         rmax=tt_rmax,
         max_iter=tt_max_iter,
-        early_stopping_patience=3,
+        early_stopping_patience=2,
         early_stopping_tolerance=1e-7,
         return_info=True,
     )
