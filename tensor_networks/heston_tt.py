@@ -37,7 +37,7 @@ def build_heston_tt(
     N = len(variable_params)
     domain = [torch.arange(0, base, device=device) for _ in range(N * basis_size)]
     coefficients = torch.tensor([base ** i for i in range(basis_size)], dtype=torch.float32, device=device)
-    param_deltas = [(v[1] - v[0]) / (torch.sum(coefficients) * (base - 1)) for v in variable_params.values()]
+    param_deltas = [((v[1] - v[0]) / (torch.sum(coefficients) * (base - 1))).item() for v in variable_params.values()]
 
     def heston_wrapper(*args):
         z = torch.stack(args)
