@@ -1,3 +1,4 @@
+import argparse
 import numpy as np
 from matplotlib import pyplot as plt
 from tqdm import tqdm
@@ -75,8 +76,35 @@ def perform_stress_test_on_parameter(
 
 
 if __name__ == '__main__':
-    parameter_name = 'rho'
-    parameter_limits = (-0.95, -0.3)
+    parser = argparse.ArgumentParser()
+    parser.add_argument("parameter_name", type=str)
+    parser.add_argument("parameter_limits", type=float, nargs=2)
+    parser.add_argument("--n_samples", type=int, default=10)
+    parser.add_argument("--S", type=float, default=100.0)
+    parser.add_argument("--K", type=float, default=100.0)
+    parser.add_argument("--T", type=float, default=1.0)
+    parser.add_argument("--v0", type=float, default=0.02)
+    parser.add_argument("--kappa", type=float, default=1.0)
+    parser.add_argument("--theta", type=float, default=0.02)
+    parser.add_argument("--rho", type=float, default=-0.7)
+    parser.add_argument("--sigma_v", type=float, default=0.1)
+    parser.add_argument("--rate", type=float, default=0.05)
+    parser.add_argument("--div", type=float, default=0.0)
 
-    perform_stress_test_on_parameter(parameter_name, parameter_limits)
+    args = parser.parse_args()
 
+    perform_stress_test_on_parameter(
+        parameter_name=args.parameter_name,
+        parameter_limits=tuple(args.parameter_limits),
+        n_samples=args.n_samples,
+        S=args.S,
+        K=args.K,
+        T=args.T,
+        v0=args.v0,
+        kappa=args.kappa,
+        theta=args.theta,
+        rho=args.rho,
+        sigma_v=args.sigma_v,
+        rate=args.rate,
+        div=args.div
+    )
