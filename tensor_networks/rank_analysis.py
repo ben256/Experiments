@@ -1,8 +1,8 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-from tensor_networks.heston_tt_legacy import approximate_heston_price_with_tt
-from tensor_networks.utils.heston_fft import heston_pricer_fft
+from heston_tt_legacy import approximate_heston_price_with_tt
+from utils.heston_fft import heston_pricer_fft
 
 
 def plot_rank_analysis():

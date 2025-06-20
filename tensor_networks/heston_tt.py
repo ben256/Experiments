@@ -2,7 +2,7 @@ import numpy as np
 import torch
 import tntorch as tn
 
-from tensor_networks.utils.heston_fft import heston_pricer_fft
+from utils.heston_fft import heston_pricer_fft
 
 
 def build_heston_tt(

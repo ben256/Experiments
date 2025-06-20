@@ -3,8 +3,8 @@ import numpy as np
 from matplotlib import pyplot as plt
 from tqdm import tqdm
 
-from tensor_networks.heston_tt import build_heston_tt, price_from_tt
-from tensor_networks.utils.heston_fft import heston_pricer_fft
+from heston_tt import build_heston_tt, price_from_tt
+from utils.heston_fft import heston_pricer_fft
 
 
 def perform_stress_test_on_parameter(
