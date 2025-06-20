@@ -138,7 +138,7 @@ def perform_stress_test_on_parameter(
     fig2.tight_layout(rect=[0, 0.03, 1, 0.95])
 
     try:
-        plt.savefig(f'./output/plots/stress_test_{parameter_name}_performance.png', dpi=300)
+        plt.savefig(fr'./output/plots/stress_test_{parameter_name}_performance.png', dpi=300)
     except Exception as e:
         print(f"Could not save the performance plot: {e}. Ensure the output directory exists.")
 
