@@ -35,7 +35,7 @@ def build_heston_tt(
 
     # Domain Setup
     N = len(variable_params)
-    domain = [torch.arange(0, base) for _ in range(N * basis_size)]
+    domain = [torch.arange(0, base, device=device) for _ in range(N * basis_size)]
     coefficients = torch.tensor([base ** i for i in range(basis_size)], dtype=torch.float32, device=device)
     param_deltas = [(v[1] - v[0]) / (torch.sum(coefficients) * (base - 1)) for v in variable_params.values()]
 
@@ -51,8 +51,8 @@ def build_heston_tt(
         K_val = S * torch.exp(k_val)
 
         S_np = np.full(K_val.shape, S)
-        K_np = K_val.numpy()
-        T_np = T_val.numpy()
+        K_np = K_val.cpu().numpy()
+        T_np = T_val.cpu().numpy()
 
         prices_np = heston_pricer_fft(
             S_np, K_np, T_np, sigma_v, kappa, rho, theta, v0, rate, div
