@@ -10,6 +10,7 @@ from utils.heston_fft import heston_pricer_fft
 def perform_stress_test_on_parameter(
         parameter_name: str,
         parameter_limits: tuple,
+        error_tolerance: float = 0.05,
         n_samples: int = 10,
         S: float = 100.0,
         K: float = 100.0,
@@ -35,9 +36,10 @@ def perform_stress_test_on_parameter(
         'rate': [rate] * n_samples,
         'div': [div] * n_samples
     }
+    parameter_values = np.linspace(parameter_limits[0], parameter_limits[1], n_samples)
     test_cases[parameter_name] = np.linspace(parameter_limits[0], parameter_limits[1], n_samples)
 
-    ranks = [2, 3, 4, 5, 6, 7]
+    ranks = [2, 3, 4, 5, 6, 8, 12, 24, 48]
 
     errors = np.zeros((n_samples, len(ranks)))
 
@@ -59,16 +61,45 @@ def perform_stress_test_on_parameter(
 
     data_for_boxplot = [errors[:, j] for j in range(len(ranks))]
 
-    fig, ax = plt.subplots(figsize=(10, 7), tight_layout=True)
-    ax.boxplot(data_for_boxplot, tick_labels=ranks, showfliers=True)
-    ax.set_xlabel('TT Rank')
-    ax.set_ylabel('RMS Pricing Error')
-    ax.set_title(f'RMS Pricing Error vs TT Rank ($\\{parameter_name}$ {parameter_limits[0]} to {parameter_limits[1]})')
-    ax.set_yscale('log')
-    ax.grid(True, which='both', alpha=0.3)
+    tolerance = error_tolerance
+    worst_case_ranks = np.full(n_samples, np.nan)
+
+    for i in range(n_samples):
+        for j, r in enumerate(ranks):
+            if errors[i, j] < tolerance:
+                worst_case_ranks[i] = r
+                break
+
+    fig, axs = plt.subplots(3, 1, figsize=(10, 15), tight_layout=True)
+
+    # rms error vs ranks
+    axs[0].boxplot(data_for_boxplot, tick_labels=ranks, showfliers=True)
+    axs[0].set_ylabel('RMS Pricing Error')
+    axs[0].set_title(f'RMS Error vs TT Rank ($\\{parameter_name}$ {parameter_limits[0]} to {parameter_limits[1]})')
+    axs[0].set_yscale('log')
+    axs[0].grid(True, which='both', alpha=0.3)
+
+    # min rank vs parameter values
+    axs[1].plot(parameter_values, worst_case_ranks, 'o-', color='orange')
+    axs[1].set_xlabel(f'Parameter Value ({parameter_name})')
+    axs[1].set_ylabel(f'Min Rank for RMS < {tolerance}')
+    axs[1].set_title('Minimum Rank Required per Parameter Draw')
+    axs[1].grid(True, alpha=0.3)
+    axs[1].set_yticks(ranks)
+
+    # histogram of min ranks
+    valid_ranks = worst_case_ranks[~np.isnan(worst_case_ranks)]
+    if len(valid_ranks) > 0:
+        bins = np.arange(min(ranks) - 0.5, max(ranks) + 1.5, 1)
+        axs[2].hist(valid_ranks, bins=bins, rwidth=0.8, align='mid')
+        axs[2].set_xticks(ranks)
+    axs[2].set_title('Distribution of Minimum Rank for RMS < 1e-3')
+    axs[2].set_xlabel('Minimum TT Rank ($r^*$)')
+    axs[2].set_ylabel('Frequency')
+    axs[2].grid(True, alpha=0.3)
 
     try:
-        plt.savefig(f'./output/plots/stress_test_{parameter_name}.png', dpi=300)
+        plt.savefig(f'./output/plots/stress_test_{parameter_name}_combined.png', dpi=300)
     except Exception:
         print("Could not save the plot. Ensure the output directory exists.")
 
@@ -79,7 +110,8 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument("parameter_name", type=str)
     parser.add_argument("parameter_limits", type=float, nargs=2)
-    parser.add_argument("--n_samples", type=int, default=10)
+    parser.add_argument("--error_tolerance", type=float, default=0.05)
+    parser.add_argument("--n_samples", type=int, default=2)
     parser.add_argument("--S", type=float, default=100.0)
     parser.add_argument("--K", type=float, default=100.0)
     parser.add_argument("--T", type=float, default=1.0)
@@ -96,6 +128,7 @@ if __name__ == '__main__':
     perform_stress_test_on_parameter(
         parameter_name=args.parameter_name,
         parameter_limits=tuple(args.parameter_limits),
+        error_tolerance=args.error_tolerance,
         n_samples=args.n_samples,
         S=args.S,
         K=args.K,
