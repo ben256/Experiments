@@ -82,7 +82,7 @@ def perform_stress_test_on_parameter(
     axs[0].boxplot(data_for_boxplot, tick_labels=ranks, showfliers=True)
     axs[0].set_ylabel('RMS Pricing Error')
     axs[0].set_xlabel('Max TT Rank')
-    axs[0].set_title(f'RMS Error vs TT Rank ($\\{parameter_name}$ {parameter_limits[0]} to {parameter_limits[1]})')
+    axs[0].set_title(rf'RMS Error vs TT Rank ($\{parameter_name}$ {parameter_limits[0]} to {parameter_limits[1]})')
     axs[0].set_yscale('log')
     axs[0].grid(True, which='both', alpha=0.3)
 
@@ -106,7 +106,7 @@ def perform_stress_test_on_parameter(
     axs[2].grid(True, alpha=0.3)
 
     try:
-        plt.savefig(f'./output/plots/stress_test_{parameter_name}_combined.png', dpi=300)
+        plt.savefig(rf'./output/plots/stress_test_{parameter_name}_combined.png', dpi=300)
     except Exception:
         print("Could not save the plot. Ensure the output directory exists.")
 
@@ -116,7 +116,7 @@ def perform_stress_test_on_parameter(
     mean_cpu_times = np.mean(cpu_times, axis=0)
 
     fig2, ax1 = plt.subplots(figsize=(12, 7))
-    fig2.suptitle(f'Performance Profile ($\\{parameter_name}$ {parameter_limits[0]} to {parameter_limits[1]})', fontsize=16)
+    fig2.suptitle(rf'Performance Profile ($\{parameter_name}$ {parameter_limits[0]} to {parameter_limits[1]})', fontsize=16)
 
     color = 'tab:red'
     ax1.set_xlabel('Mean CPU Time (s)', fontsize=12)
