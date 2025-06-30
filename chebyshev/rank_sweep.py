@@ -69,7 +69,7 @@ def perform_rank_sweep():
                 tt_max_iter=40,
                 tt_eps=1E-3,
                 tt_early_stopping_tolerance= 7E-5,
-                tt_early_stopping_patience=4
+                tt_early_stopping_patience=2
             )
 
             pricer.offline_phase()
@@ -109,7 +109,7 @@ def perform_rank_sweep():
         n_samples.append(dim_n_samples)
 
     output_dict = {
-        'ranks': ranks,
+        'ranks': ranks.tolist(),
         'dimensions': dimensions.tolist(),
         'offline_times': offline_times,
         'online_times': online_times,
