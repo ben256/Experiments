@@ -4,7 +4,7 @@ import time
 import numpy as np
 from scipy.fft import dctn, dct
 
-from chebyshev.heston_chebyshev2 import heston_pricer_fft
+from utils.heston_fft import heston_pricer_fft
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(filename)s - %(message)s')
 logging.getLogger().setLevel(logging.INFO)
