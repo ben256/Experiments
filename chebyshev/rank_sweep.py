@@ -29,7 +29,7 @@ def perform_rank_sweep():
     }
     test_samples['batch_size'] = n_test
 
-    ranks = np.arange(2, 43, 4)
+    ranks = np.arange(2, 35, 5)
     interpolation_order = 8
     n = len(parameter_limits.keys())
     dimensions = np.arange(1, n + 1)
