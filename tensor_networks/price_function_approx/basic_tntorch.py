@@ -8,13 +8,13 @@ import numpy as np
 
 min = -5
 max = 5
-basis_size = 3  # Size of the polynomial basis
-base = 10 # Base for the polynomial basis, both equivalent to 10^3 = 1000
+basis_size = 3
+base = 10
 coefs = [base**i for i in range(basis_size)]
 delta_z = (max - min) / (np.sum(coefs) * (base - 1))
 
-N = 6  # Number of variables
-m = MultivariateNormal(torch.zeros(N), torch.eye(N)) # Multivariate normal distribution with mean 0 and identity covariance
+N = 6
+m = MultivariateNormal(torch.zeros(N), torch.eye(N))
 
 def multivariate_normal_wrapper(*args):
     z = torch.stack(args)

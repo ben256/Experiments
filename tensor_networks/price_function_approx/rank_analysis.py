@@ -24,7 +24,7 @@ def plot_rank_analysis():
     test_values = (S_test, K_test, T_test, v0_test)
 
     # analytical_price = heston_pricer_fft(S_test, K_test, T_test, sigma_v, kappa, rho, theta, v0_test, r, 0.0)
-    analytical_prices = np.load('./output/tensor_trains/heston_tt_analytical_prices.npy')
+    analytical_prices = np.load('output/tensor_trains/heston_tt_analytical_prices.npy')
 
     ranks_to_test = [2, 4, 8, 16]
     all_errors = []
